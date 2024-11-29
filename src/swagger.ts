@@ -7,17 +7,7 @@ const options = {
       title: "WebSchool API",
       version: "1.0.0",
       description: "API documentation for WebSchool backend",
-      contact: {
-        name: "API Support",
-        email: "support@webschool.com",
-      },
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Development server",
-      },
-    ],
     components: {
       securitySchemes: {
         bearerAuth: {
