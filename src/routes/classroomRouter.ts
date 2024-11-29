@@ -9,8 +9,67 @@ import * as classroomQueries from "../db/queries/classrooms";
 
 const classroomRouter = Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Classrooms
+ *   description: Classroom management endpoints
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Classroom:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: Classroom's unique ID
+ *         name:
+ *           type: string
+ *           description: Classroom name
+ *         adminsId:
+ *           type: string
+ *           description: JSON string array of admin user IDs
+ *         studentsId:
+ *           type: string
+ *           description: JSON string array of student user IDs
+ */
+
 classroomRouter.use(authMiddleware as any);
 
+/**
+ * @swagger
+ * /classroom:
+ *   post:
+ *     summary: Create a new classroom (teachers only)
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Classroom created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Classroom'
+ *       403:
+ *         description: Not authorized (teacher role required)
+ *       500:
+ *         description: Server error
+ */
 classroomRouter.post(
   "/",
   teacherOnly as any,
@@ -33,6 +92,31 @@ classroomRouter.post(
   }
 );
 
+/**
+ * @swagger
+ * /classroom/{id}:
+ *   delete:
+ *     summary: Delete a classroom (teachers only)
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Classroom ID
+ *     responses:
+ *       200:
+ *         description: Classroom deleted successfully
+ *       403:
+ *         description: Not authorized or not classroom admin
+ *       404:
+ *         description: Classroom not found
+ *       500:
+ *         description: Server error
+ */
 classroomRouter.delete(
   "/:id",
   teacherOnly as any,
@@ -61,6 +145,46 @@ classroomRouter.delete(
   }
 );
 
+/**
+ * @swagger
+ * /classroom/{id}/users:
+ *   post:
+ *     summary: Add a user to classroom (teachers only)
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Classroom ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - role
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [admin, student]
+ *     responses:
+ *       200:
+ *         description: User added to classroom
+ *       403:
+ *         description: Not authorized or not classroom admin
+ *       404:
+ *         description: Classroom not found
+ *       500:
+ *         description: Server error
+ */
 classroomRouter.post(
   "/:id/users",
   teacherOnly as any,
@@ -94,6 +218,35 @@ classroomRouter.post(
   }
 );
 
+/**
+ * @swagger
+ * /classroom/{id}/users/{userId}:
+ *   delete:
+ *     summary: Remove a user from classroom
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Classroom ID
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to remove
+ *     responses:
+ *       200:
+ *         description: User removed from classroom
+ *       404:
+ *         description: Classroom not found
+ *       500:
+ *         description: Server error
+ */
 classroomRouter.delete(
   "/:id/users/:userId",
   async (req: AuthRequest, res: Response) => {

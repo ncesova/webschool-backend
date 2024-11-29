@@ -11,6 +11,64 @@ const gameRouter = Router();
 
 gameRouter.use(authMiddleware as any);
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Game:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the game
+ *         name:
+ *           type: string
+ *           description: The name of the game
+ */
+
+/**
+ * @swagger
+ * /games:
+ *   get:
+ *     summary: Get all games
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of games
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Game'
+ *   post:
+ *     summary: Create a new game
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Game created successfully
+ *       403:
+ *         description: Only teachers can create games
+ */
+
 gameRouter.post(
   "/",
   teacherOnly as any,

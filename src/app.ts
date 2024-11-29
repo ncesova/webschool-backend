@@ -7,6 +7,8 @@ import classroomRouter from "./routes/classroomRouter";
 import leaderboardRouter from "./routes/leaderboardRouter";
 import gameRouter from "./routes/gameRouter";
 import userRouter from "./routes/userRouter";
+import swaggerUi from "swagger-ui-express";
+import {specs} from "./swagger";
 
 const app = express();
 app.use(
@@ -18,18 +20,20 @@ app.use(
 );
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log("Request Body:", req.body);
-  console.log("Content-Type:", req.headers["content-type"]);
-  next();
-});
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/classroom", classroomRouter);
 app.use("/leaderboard", leaderboardRouter);
 app.use("/games", gameRouter);
 app.use("/users", userRouter);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.listen(3000, () => {
-  console.log("app listening on port 3000!");
-});
+const port = process.env.PORT || 3000;
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+export default app;

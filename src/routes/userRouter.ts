@@ -8,8 +8,64 @@ import * as userQueries from "../db/queries/users";
 
 const userRouter = Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: User's unique ID
+ *         username:
+ *           type: string
+ *           description: User's username
+ *         name:
+ *           type: string
+ *           description: User's first name
+ *         surname:
+ *           type: string
+ *           description: User's last name
+ *         roleId:
+ *           type: integer
+ *           description: User's role (1 = student, 2 = parent, 3 = teacher)
+ *         classroomId:
+ *           type: string
+ *           description: ID of user's classroom (if any)
+ */
+
 userRouter.use(authMiddleware as any);
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users (teachers only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Not authorized (teacher role required)
+ *       500:
+ *         description: Server error
+ */
 userRouter.get(
   "/",
   teacherOnly as any,
@@ -24,6 +80,33 @@ userRouter.get(
   }
 );
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   try {
     const {id} = req.params;
@@ -41,6 +124,33 @@ userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /users/classroom/{classroomId}:
+ *   get:
+ *     summary: Get all users in a classroom
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classroomId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Classroom ID
+ *     responses:
+ *       200:
+ *         description: List of users in the classroom
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
+ */
 userRouter.get(
   "/classroom/:classroomId",
   async (req: AuthRequest, res: Response) => {

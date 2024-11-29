@@ -5,6 +5,54 @@ import * as authQueries from "../db/queries/auth";
 
 const authRouter = Router();
 
+/**
+ * @swagger
+ * /auth/signup:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *               - roleId
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: User's username
+ *               password:
+ *                 type: string
+ *                 description: User's password
+ *               name:
+ *                 type: string
+ *                 description: User's first name
+ *               surname:
+ *                 type: string
+ *                 description: User's last name
+ *               roleId:
+ *                 type: integer
+ *                 description: User's role (1 = student, 2 = parent, 3 = teacher)
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT token for authentication
+ *       400:
+ *         description: Invalid input or username already exists
+ *       500:
+ *         description: Server error
+ */
 authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
     const {username, password, name, surname, roleId} = req.body;
@@ -49,6 +97,41 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
   }
 }) as any;
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
+ */
 authRouter.post("/login", async (req: Request, res: Response) => {
   try {
     const {username, password} = req.body;
