@@ -49,6 +49,19 @@ export const usersTable = pgTable(
   }
 );
 
+export const gamesTable = pgTable("games_table", {
+  id: integer("id"),
+  name: text("name"),
+});
+
+export const leaderboardTable = pgTable("leaderboard_table", {
+  id: integer("id"),
+  gameId: integer("game_id"),
+  userId: integer("user_id"),
+  classroomId: text("classroom_id"),
+  value: integer("value"),
+});
+
 export const __drizzleMigrationsInDrizzle = drizzle.table(
   "__drizzle_migrations",
   {

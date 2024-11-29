@@ -42,7 +42,7 @@ export const authMiddleware = async (
     req.user = {
       userId: decoded.userId,
       username: decoded.username,
-      roleId: user[0].roleId,
+      roleId: user[0].roleId!,
     };
 
     next();

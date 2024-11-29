@@ -11,12 +11,12 @@ import {
 
 const classroomRouter = Router();
 
-// Apply auth middleware to all classroom routes
+//@ts-ignore
 classroomRouter.use(authMiddleware);
 
-// Create classroom (teachers only)
 classroomRouter.post(
   "/",
+  //@ts-ignore
   teacherOnly,
   async (req: AuthRequest, res: Response) => {
     try {
@@ -47,16 +47,15 @@ classroomRouter.post(
   }
 );
 
-// Delete classroom (teachers only)
 classroomRouter.delete(
   "/:id",
+  //@ts-ignore
   teacherOnly,
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;
       const teacherId = req.user!.userId;
 
-      // Check if teacher is admin of this classroom
       const classroom = await db
         .select()
         .from(classroomsTable)
@@ -73,13 +72,11 @@ classroomRouter.delete(
           .json({message: "Only classroom admins can delete it"});
       }
 
-      // Remove classroom reference from all users
       await db
         .update(usersTable)
         .set({classroomId: null})
         .where(eq(usersTable.classroomId, id));
 
-      // Delete the classroom
       await db.delete(classroomsTable).where(eq(classroomsTable.id, id));
 
       res.status(200).json({message: "Classroom deleted"});
@@ -89,9 +86,9 @@ classroomRouter.delete(
   }
 );
 
-// Add user to classroom (teachers only)
 classroomRouter.post(
   "/:id/users",
+  //@ts-ignore
   teacherOnly,
   async (req: AuthRequest, res: Response) => {
     try {
@@ -110,7 +107,6 @@ classroomRouter.post(
         return res.status(404).json({message: "Classroom not found"});
       }
 
-      // Check if teacher is admin of this classroom
       const admins = JSON.parse(classroom[0].adminsId || "[]");
       if (!admins.includes(teacherId)) {
         return res
@@ -136,7 +132,6 @@ classroomRouter.post(
           .where(eq(classroomsTable.id, id));
       }
 
-      // Update user's classroom reference
       await db
         .update(usersTable)
         .set({classroomId: id})
@@ -149,10 +144,10 @@ classroomRouter.post(
   }
 );
 
-// Remove user from classroom
 //@ts-ignore
 classroomRouter.delete(
   "/:id/users/:userId",
+  //@ts-ignore
   async (req: Request, res: Response) => {
     try {
       const {id, userId} = req.params;
@@ -170,7 +165,6 @@ classroomRouter.delete(
       const admins = JSON.parse(currentClassroom.adminsId || "[]");
       const students = JSON.parse(currentClassroom.studentsId || "[]");
 
-      // Remove user from both arrays (regardless of their role)
       const newAdmins = admins.filter((id: string) => id !== userId);
       const newStudents = students.filter((id: string) => id !== userId);
 
@@ -184,7 +178,6 @@ classroomRouter.delete(
 
       console.log(newStudents, students);
 
-      // Remove classroom reference from user
       await db
         .update(usersTable)
         .set({classroomId: null})
