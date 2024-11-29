@@ -3,10 +3,11 @@ import jwt from "jsonwebtoken";
 import {db} from "../db";
 import {usersTable} from "../db/schema";
 import {eq} from "drizzle-orm";
+import {ROLES} from "../db/seed";
 
 export interface AuthRequest extends Request {
   user?: {
-    userId: number;
+    userId: string;
     username: string;
     roleId: number;
   };
@@ -56,8 +57,7 @@ export const teacherOnly = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.user?.roleId !== 3) {
-    // 3 is teacher role
+  if (req.user?.roleId !== ROLES.TEACHER) {
     return res
       .status(403)
       .json({message: "Only teachers can perform this action"});

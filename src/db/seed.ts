@@ -1,15 +1,18 @@
 import {db} from "./index";
 import {rolesTable} from "./schema";
 
+const ROLES = {
+  STUDENT: 1,
+  PARENT: 2,
+  TEACHER: 3,
+} as const;
+
 async function seed() {
   await db
     .insert(rolesTable)
-    .values([
-      {id: 1, name: "student"},
-      {id: 2, name: "parent"},
-      {id: 3, name: "teacher"},
-    ])
+    .values([{name: "student"}, {name: "parent"}, {name: "teacher"}])
     .onConflictDoNothing();
 }
 
+export {ROLES};
 seed().catch(console.error);

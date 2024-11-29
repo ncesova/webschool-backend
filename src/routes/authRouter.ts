@@ -1,12 +1,10 @@
 import {Router, Request, Response} from "express";
-import {db} from "../db"; // Make sure you have your db connection exported
-import {usersTable} from "../db/schema";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import {eq} from "drizzle-orm";
+import {v4 as uuidv4} from "uuid";
+import {ROLES} from "../db/seed";
+import * as authQueries from "../db/queries/auth";
 
 const authRouter = Router();
-//@ts-ignore
+
 authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
     const {username, password, name, surname, roleId} = req.body;
@@ -19,7 +17,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
     }
 
     // Validate role
-    if (![1, 2, 3].includes(roleId)) {
+    if (![ROLES.STUDENT, ROLES.PARENT, ROLES.TEACHER].includes(roleId)) {
       return res.status(400).json({
         message:
           "Invalid role. Must be 1 (student), 2 (parent), or 3 (teacher)",
@@ -27,31 +25,24 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
     }
 
     // Check if user already exists
-    const existingUser = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.username, username));
+    const existingUser = await authQueries.checkUserExists(username);
     if (existingUser.length > 0) {
       return res.status(400).json({message: "Username already exists"});
     }
-    console.log(password);
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await db
-      .insert(usersTable)
-      .values({
-        username,
-        password: hashedPassword,
-        name,
-        surname,
-        roleId,
-      })
-      .returning();
+    const newUser = await authQueries.createUser({
+      id: uuidv4(),
+      username,
+      password,
+      name,
+      surname,
+      roleId,
+    });
 
-    const token = jwt.sign(
-      {userId: newUser[0].id, username, roleId: newUser[0].roleId},
-      process.env.JWT_SECRET || "your-secret-key",
-      {expiresIn: "24h"}
+    const token = await authQueries.generateToken(
+      newUser[0].id,
+      username,
+      newUser[0].roleId!
     );
 
     res.status(201).json({token});
@@ -59,8 +50,8 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
     console.error("Signup error:", error);
     res.status(500).json({message: "Internal server error"});
   }
-});
-//@ts-ignore
+}) as any;
+
 authRouter.post("/login", async (req: Request, res: Response) => {
   try {
     const {username, password} = req.body;
@@ -73,11 +64,7 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     }
 
     // Find user
-    const users = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.username, username));
-
+    const users = await authQueries.checkUserExists(username);
     if (users.length === 0) {
       return res.status(401).json({message: "Invalid credentials"});
     }
@@ -86,17 +73,21 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     if (!user.password) {
       return res.status(401).json({message: "Invalid credentials"});
     }
-    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    const passwordMatch = await authQueries.verifyPassword(
+      password,
+      user.password
+    );
 
     if (!passwordMatch) {
       return res.status(401).json({message: "Invalid credentials"});
     }
 
     // Generate JWT
-    const token = jwt.sign(
-      {userId: user.id, username, roleId: user.roleId},
-      process.env.JWT_SECRET || "your-secret-key",
-      {expiresIn: "24h"}
+    const token = await authQueries.generateToken(
+      user.id,
+      username,
+      user.roleId!
     );
 
     res.json({token});
@@ -104,18 +95,6 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     console.error("Login error:", error);
     res.status(500).json({message: "Internal server error"});
   }
-});
-
-authRouter.get("/test-headers", (req: Request, res: Response) => {
-  console.log("Headers:", req.headers);
-  console.log("Content-Type:", req.headers["content-type"]);
-  console.log("Body:", req.body);
-
-  res.json({
-    headers: req.headers,
-    contentType: req.headers["content-type"],
-    body: req.body,
-  });
-});
+}) as any;
 
 export default authRouter;

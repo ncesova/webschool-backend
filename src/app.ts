@@ -4,6 +4,10 @@ import cors from "cors";
 import indexRouter from "./routes/indexRouter";
 import authRouter from "./routes/authRouter";
 import classroomRouter from "./routes/classroomRouter";
+import leaderboardRouter from "./routes/leaderboardRouter";
+import gameRouter from "./routes/gameRouter";
+import userRouter from "./routes/userRouter";
+
 const app = express();
 app.use(
   cors({
@@ -22,6 +26,9 @@ app.use((req, res, next) => {
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/classroom", classroomRouter);
+app.use("/leaderboard", leaderboardRouter);
+app.use("/games", gameRouter);
+app.use("/users", userRouter);
 
 app.listen(3000, () => {
   console.log("app listening on port 3000!");
