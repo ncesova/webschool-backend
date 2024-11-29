@@ -9,14 +9,12 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
     const {username, password, name, surname, roleId} = req.body;
 
-    // Add validation
     if (!username || !password || !roleId) {
       return res
         .status(400)
         .json({message: "Username, password, and role are required"});
     }
 
-    // Validate role
     if (![ROLES.STUDENT, ROLES.PARENT, ROLES.TEACHER].includes(roleId)) {
       return res.status(400).json({
         message:
@@ -24,7 +22,6 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
       });
     }
 
-    // Check if user already exists
     const existingUser = await authQueries.checkUserExists(username);
     if (existingUser.length > 0) {
       return res.status(400).json({message: "Username already exists"});
@@ -56,14 +53,12 @@ authRouter.post("/login", async (req: Request, res: Response) => {
   try {
     const {username, password} = req.body;
 
-    // Validate input
     if (!username || !password) {
       return res
         .status(400)
         .json({message: "Username and password are required"});
     }
 
-    // Find user
     const users = await authQueries.checkUserExists(username);
     if (users.length === 0) {
       return res.status(401).json({message: "Invalid credentials"});
@@ -83,7 +78,6 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       return res.status(401).json({message: "Invalid credentials"});
     }
 
-    // Generate JWT
     const token = await authQueries.generateToken(
       user.id,
       username,

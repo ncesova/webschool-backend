@@ -5,7 +5,6 @@ import * as leaderboardQueries from "../db/queries/leaderboard";
 
 const leaderboardRouter = Router();
 
-// Fix middleware type error
 leaderboardRouter.use(authMiddleware as any);
 
 interface PaginationQuery {
@@ -26,7 +25,6 @@ function getPaginationParams(query: PaginationQuery) {
   return {limit, offset, page};
 }
 
-// Add a new score to leaderboard
 //@ts-ignore
 leaderboardRouter.post("/", async (req: AuthRequest, res: Response) => {
   try {
@@ -56,7 +54,6 @@ leaderboardRouter.post("/", async (req: AuthRequest, res: Response) => {
   }
 });
 
-// Get leaderboard by game
 leaderboardRouter.get(
   "/game/:gameId",
   //@ts-ignore
@@ -85,7 +82,6 @@ leaderboardRouter.get(
   }
 );
 
-// Get leaderboard by classroom
 leaderboardRouter.get(
   "/classroom/:classroomId",
   //@ts-ignore
@@ -114,7 +110,6 @@ leaderboardRouter.get(
   }
 );
 
-// Get user's scores
 leaderboardRouter.get(
   "/user/:userId",
   //@ts-ignore

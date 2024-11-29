@@ -23,13 +23,11 @@ export async function updateClassroomUsers(
 }
 
 export async function deleteClassroom(id: string) {
-  // First update users to remove classroom reference
   await db
     .update(usersTable)
     .set({classroomId: null})
     .where(eq(usersTable.classroomId, id));
 
-  // Then delete the classroom
   return db.delete(classroomsTable).where(eq(classroomsTable.id, id));
 }
 

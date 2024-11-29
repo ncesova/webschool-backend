@@ -10,7 +10,6 @@ const userRouter = Router();
 
 userRouter.use(authMiddleware as any);
 
-// Get all users (teacher only)
 userRouter.get(
   "/",
   teacherOnly as any,
@@ -25,7 +24,6 @@ userRouter.get(
   }
 );
 
-// Get specific user
 userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   try {
     const {id} = req.params;
@@ -35,7 +33,6 @@ userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
       return res.status(404).json({message: "User not found"});
     }
 
-    // Remove sensitive information
     const {password, ...userWithoutPassword} = user[0];
     res.json(userWithoutPassword);
   } catch (error) {
@@ -44,7 +41,6 @@ userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   }
 });
 
-// Get all users from a classroom
 userRouter.get(
   "/classroom/:classroomId",
   async (req: AuthRequest, res: Response) => {
