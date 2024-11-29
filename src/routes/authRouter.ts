@@ -53,6 +53,7 @@ const authRouter = Router();
  *       500:
  *         description: Server error
  */
+// @ts-ignore
 authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
     const {username, password, name, surname, roleId} = req.body;
@@ -132,6 +133,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
+// @ts-ignore
 authRouter.post("/login", async (req: Request, res: Response) => {
   try {
     const {username, password} = req.body;

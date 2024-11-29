@@ -73,6 +73,7 @@ classroomRouter.use(authMiddleware as any);
 classroomRouter.post(
   "/",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const teacherId = req.user!.userId;
@@ -120,6 +121,7 @@ classroomRouter.post(
 classroomRouter.delete(
   "/:id",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;
@@ -188,6 +190,7 @@ classroomRouter.delete(
 classroomRouter.post(
   "/:id/users",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;
@@ -249,6 +252,7 @@ classroomRouter.post(
  */
 classroomRouter.delete(
   "/:id/users/:userId",
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {id, userId} = req.params;

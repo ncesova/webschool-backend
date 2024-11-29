@@ -72,6 +72,7 @@ gameRouter.use(authMiddleware as any);
 gameRouter.post(
   "/",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {name} = req.body;
@@ -93,6 +94,7 @@ gameRouter.post(
   }
 );
 
+// @ts-ignore
 gameRouter.get("/", async (req: AuthRequest, res: Response) => {
   try {
     const games = await gameQueries.getAllGames();
@@ -103,7 +105,7 @@ gameRouter.get("/", async (req: AuthRequest, res: Response) => {
     res.status(500).json({message: "Failed to get games"});
   }
 });
-
+// @ts-ignore
 gameRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   try {
     const {id} = req.params;
@@ -124,6 +126,7 @@ gameRouter.get("/:id", async (req: AuthRequest, res: Response) => {
 gameRouter.put(
   "/:id",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;
@@ -150,6 +153,7 @@ gameRouter.put(
 gameRouter.delete(
   "/:id",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;

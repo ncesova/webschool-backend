@@ -1,4 +1,4 @@
-import {Router, Response} from "express";
+import {Router, Response, RequestHandler} from "express";
 import {
   AuthRequest,
   authMiddleware,
@@ -69,6 +69,7 @@ userRouter.use(authMiddleware as any);
 userRouter.get(
   "/",
   teacherOnly as any,
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const users = await userQueries.getAllUsers();
@@ -107,6 +108,7 @@ userRouter.get(
  *       500:
  *         description: Server error
  */
+// @ts-ignore
 userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
   try {
     const {id} = req.params;
@@ -153,6 +155,7 @@ userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
  */
 userRouter.get(
   "/classroom/:classroomId",
+  // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
       const {classroomId} = req.params;
