@@ -69,6 +69,91 @@ gameRouter.use(authMiddleware as any);
  *         description: Only teachers can create games
  */
 
+/**
+ * @swagger
+ * /games/{id}:
+ *   get:
+ *     summary: Get a game by ID
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Game ID
+ *     responses:
+ *       200:
+ *         description: Game details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Game'
+ *       404:
+ *         description: Game not found
+ *       500:
+ *         description: Server error
+ *   put:
+ *     summary: Update a game (teachers only)
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Game ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Game updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Game'
+ *       403:
+ *         description: Not authorized (teacher role required)
+ *       404:
+ *         description: Game not found
+ *       500:
+ *         description: Server error
+ *   delete:
+ *     summary: Delete a game (teachers only)
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Game ID
+ *     responses:
+ *       200:
+ *         description: Game deleted successfully
+ *       403:
+ *         description: Not authorized (teacher role required)
+ *       404:
+ *         description: Game not found
+ *       500:
+ *         description: Server error
+ */
+
 gameRouter.post(
   "/",
   teacherOnly as any,

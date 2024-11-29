@@ -16,6 +16,23 @@ const options = {
           bearerFormat: "JWT",
         },
       },
+      schemas: {
+        Game: {
+          type: "object",
+          required: ["id", "name"],
+          properties: {
+            id: {
+              type: "string",
+              description: "The game's unique identifier",
+            },
+            name: {
+              type: "string",
+              description: "The name of the game",
+            },
+          },
+        },
+        // ... other existing schemas
+      },
     },
     security: [
       {

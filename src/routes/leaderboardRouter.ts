@@ -145,6 +145,110 @@ function getPaginationParams(query: PaginationQuery) {
  *                       type: integer
  */
 
+/**
+ * @swagger
+ * /leaderboard/classroom/{classroomId}:
+ *   get:
+ *     summary: Get classroom leaderboard
+ *     tags: [Leaderboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classroomId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Paginated leaderboard entries for a classroom
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/LeaderboardEntry'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *                     offset:
+ *                       type: integer
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /leaderboard/user/{userId}:
+ *   get:
+ *     summary: Get user scores
+ *     tags: [Leaderboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Paginated scores for a specific user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/LeaderboardEntry'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     pageSize:
+ *                       type: integer
+ *                     offset:
+ *                       type: integer
+ *       500:
+ *         description: Server error
+ */
+
 //@ts-ignore
 leaderboardRouter.post("/", async (req: AuthRequest, res: Response) => {
   try {
