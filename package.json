@@ -9,7 +9,6 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "clean": "rm -rf dist",
-    "postbuild": "cp .env ./dist/.env",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.ts",
