@@ -171,10 +171,8 @@ classroomRouter.delete(
       const students = JSON.parse(currentClassroom.studentsId || "[]");
 
       // Remove user from both arrays (regardless of their role)
-      const newAdmins = admins.filter((id: number) => id !== parseInt(userId));
-      const newStudents = students.filter(
-        (id: number) => id !== parseInt(userId)
-      );
+      const newAdmins = admins.filter((id: string) => id !== userId);
+      const newStudents = students.filter((id: string) => id !== userId);
 
       await db
         .update(classroomsTable)
@@ -183,6 +181,8 @@ classroomRouter.delete(
           studentsId: JSON.stringify(newStudents),
         })
         .where(eq(classroomsTable.id, id));
+
+      console.log(newStudents, students);
 
       // Remove classroom reference from user
       await db
