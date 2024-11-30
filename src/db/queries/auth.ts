@@ -4,6 +4,7 @@ import {eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {ROLES} from "../seed";
+import {v4 as uuidv4} from "uuid";
 import * as parentChildQueries from "./parentChild";
 
 interface SignupData {
@@ -34,7 +35,7 @@ export async function createUser(data: SignupData) {
 
   if (parentId && data.roleId === ROLES.STUDENT) {
     await parentChildQueries.addChildToParent({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       parentId,
       childId: newUser[0].id,
     });
