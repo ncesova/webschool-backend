@@ -6,6 +6,8 @@ import {
   bigint,
   timestamp,
   integer,
+  json,
+  varchar,
 } from "drizzle-orm/pg-core";
 import {sql} from "drizzle-orm";
 
@@ -90,3 +92,27 @@ export const parentChildTable = pgTable(
     ),
   })
 );
+
+export const lessonsTable = pgTable("lessons_table", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  classroomId: text("classroom_id")
+    .references(() => classroomsTable.id)
+    .notNull(),
+  gameIds: json("game_ids").$type<string[]>().default([]).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const lessonSummariesTable = pgTable("lesson_summaries_table", {
+  id: text("id").primaryKey(),
+  lessonId: text("lesson_id")
+    .references(() => lessonsTable.id)
+    .notNull(),
+  fileName: varchar("file_name", {length: 255}).notNull(),
+  fileKey: varchar("file_key", {length: 255}).notNull(),
+  fileType: varchar("file_type", {length: 100}).notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

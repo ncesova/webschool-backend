@@ -3,6 +3,8 @@ import {usersTable} from "../schema";
 import {eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {ROLES} from "../seed";
+import * as parentChildQueries from "./parentChild";
 
 interface SignupData {
   id: string;
@@ -11,6 +13,7 @@ interface SignupData {
   name?: string;
   surname?: string;
   roleId: number;
+  parentId?: string;
 }
 
 export async function checkUserExists(username: string) {
@@ -19,14 +22,25 @@ export async function checkUserExists(username: string) {
 
 export async function createUser(data: SignupData) {
   const hashedPassword = await bcrypt.hash(data.password, 10);
+  const {parentId, ...userData} = data;
 
-  return db
+  const newUser = await db
     .insert(usersTable)
     .values({
-      ...data,
+      ...userData,
       password: hashedPassword,
     })
     .returning();
+
+  if (parentId && data.roleId === ROLES.STUDENT) {
+    await parentChildQueries.addChildToParent({
+      id: crypto.randomUUID(),
+      parentId,
+      childId: newUser[0].id,
+    });
+  }
+
+  return newUser;
 }
 
 export async function generateToken(

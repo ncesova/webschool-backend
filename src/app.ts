@@ -12,6 +12,7 @@ import swaggerUi from "swagger-ui-express";
 import {specs} from "./swagger";
 import teacherInfoRouter from "./routes/teacherInfoRouter";
 import parentRouter from "./routes/parentRouter";
+import lessonRouter from "./routes/lessonRouter";
 
 const app = express();
 app.use(
@@ -32,6 +33,7 @@ app.use("/users", userRouter);
 app.use("/tags", tagRouter);
 app.use("/teacher-info", teacherInfoRouter);
 app.use("/parent", parentRouter);
+app.use("/lessons", lessonRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 const port = process.env.PORT || 3000;
