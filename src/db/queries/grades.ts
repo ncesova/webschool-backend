@@ -117,3 +117,15 @@ export async function getClassroomGrades(classroomId: string) {
     .where(eq(lessonsTable.classroomId, classroomId))
     .orderBy(desc(gradesTable.createdAt));
 }
+
+export async function getStudentGradesSimple(studentId: string) {
+  return db
+    .select({
+      lessonId: gradesTable.lessonId,
+      grade: gradesTable.grade,
+      comment: gradesTable.comment,
+    })
+    .from(gradesTable)
+    .where(eq(gradesTable.studentId, studentId))
+    .orderBy(desc(gradesTable.createdAt));
+}

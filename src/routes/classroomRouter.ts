@@ -353,4 +353,64 @@ classroomRouter.get("/:id/details", async (req: AuthRequest, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /classroom/student/{studentId}:
+ *   get:
+ *     summary: Get all classrooms with lessons for a student
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: studentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student's user ID
+ *     responses:
+ *       200:
+ *         description: List of classrooms with their lessons
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   lessons:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         description:
+ *                           type: string
+ */
+classroomRouter.get(
+  "/student/:studentId",
+  // @ts-ignore
+  canAccessChildData,
+  // @ts-ignore
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const {studentId} = req.params;
+      const classrooms = await classroomQueries.getStudentClassroomsWithLessons(
+        studentId
+      );
+      res.json(classrooms);
+    } catch (error) {
+      console.error("Get student classrooms error:", error);
+      res.status(500).json({message: "Failed to get student classrooms"});
+    }
+  }
+);
+
 export default classroomRouter;

@@ -182,15 +182,32 @@ gradeRouter.get(
  *         required: true
  *         schema:
  *           type: string
+ *         description: Student's user ID
+ *     responses:
+ *       200:
+ *         description: List of student's grades
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   lessonId:
+ *                     type: string
+ *                   grade:
+ *                     type: integer
+ *                   comment:
+ *                     type: string
  */
 gradeRouter.get(
   "/student/:studentId",
   // @ts-ignore
   canAccessChildData,
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const {studentId} = req.params;
-      const grades = await gradeQueries.getStudentGrades(studentId);
+      const grades = await gradeQueries.getStudentGradesSimple(studentId);
       res.json(grades);
     } catch (error) {
       console.error("Get student grades error:", error);

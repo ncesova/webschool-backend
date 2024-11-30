@@ -1,5 +1,5 @@
 import {db} from "../index";
-import {classroomsTable, usersTable} from "../schema";
+import {classroomsTable, usersTable, lessonsTable} from "../schema";
 import {eq, inArray, and} from "drizzle-orm";
 import {ROLES} from "../seed";
 import {sql} from "drizzle-orm";
@@ -173,4 +173,41 @@ export async function getClassroomWithDetails(id: string) {
     admins: adminDetails,
     students: studentDetails,
   };
+}
+
+export async function getStudentClassroomsWithLessons(studentId: string) {
+  // Get classrooms where student is a member
+  const classrooms = await db
+    .select({
+      id: classroomsTable.id,
+      name: classroomsTable.name,
+    })
+    .from(classroomsTable)
+    .where(
+      sql`${classroomsTable.studentsId}::jsonb @> ${JSON.stringify([
+        studentId,
+      ])}::jsonb`
+    );
+
+  // Get lessons for each classroom
+  const classroomsWithLessons = await Promise.all(
+    classrooms.map(async (classroom) => {
+      const lessons = await db
+        .select({
+          id: lessonsTable.id,
+          name: lessonsTable.name,
+          description: lessonsTable.description,
+        })
+        .from(lessonsTable)
+        .where(eq(lessonsTable.classroomId, classroom.id))
+        .orderBy(lessonsTable.createdAt);
+
+      return {
+        ...classroom,
+        lessons,
+      };
+    })
+  );
+
+  return classroomsWithLessons;
 }
