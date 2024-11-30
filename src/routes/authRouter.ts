@@ -41,12 +41,19 @@ const authRouter = Router();
  *     responses:
  *       201:
  *         description: User created successfully
- *       400:
- *         description: Invalid input or username already exists
- *       500:
- *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT token for authentication
+ *                 userId:
+ *                   type: string
+ *                   description: User's unique ID
  */
-//@ts-ignore
+// @ts-ignore
 authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
     const {username, password, name, surname, roleId} = req.body;
@@ -90,7 +97,10 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
       roleId
     );
 
-    res.status(201).json({token});
+    res.status(201).json({
+      token,
+      userId: newUser[0].id,
+    });
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({message: "Internal server error"});
@@ -214,10 +224,10 @@ authRouter.post(
  *               properties:
  *                 token:
  *                   type: string
- *       401:
- *         description: Invalid credentials
- *       500:
- *         description: Server error
+ *                   description: JWT token for authentication
+ *                 userId:
+ *                   type: string
+ *                   description: User's unique ID
  */
 // @ts-ignore
 authRouter.post("/login", async (req: Request, res: Response) => {
@@ -255,11 +265,14 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       user.roleId!
     );
 
-    res.json({token});
+    res.json({
+      token,
+      userId: user.id,
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({message: "Internal server error"});
   }
-}) as any;
+});
 
 export default authRouter;

@@ -29,7 +29,6 @@ export const authMiddleware = async (
       token,
       process.env.JWT_SECRET || "your-secret-key"
     ) as any;
-    console.log("authMiddleware decoded", decoded);
 
     const user = await db
       .select()
