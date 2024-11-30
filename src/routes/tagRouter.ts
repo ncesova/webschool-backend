@@ -1,46 +1,20 @@
 import {Router, Response} from "express";
+import {v4 as uuidv4} from "uuid";
+import * as tagQueries from "../db/queries/tags";
 import {
   AuthRequest,
   authMiddleware,
   teacherOnly,
 } from "../middleware/authMiddleware";
-import {v4 as uuidv4} from "uuid";
-import * as tagQueries from "../db/queries/tags";
 
 const tagRouter = Router();
-
-tagRouter.use(authMiddleware as any);
-
-/**
- * @swagger
- * tags:
- *   name: Tags
- *   description: Tag management endpoints
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Tag:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *           description: Tag's unique ID
- *         name:
- *           type: string
- *           description: Tag name
- */
 
 /**
  * @swagger
  * /tags:
  *   get:
- *     summary: Get all tags
+ *     summary: Get all tags (public)
  *     tags: [Tags]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all tags
@@ -56,7 +30,7 @@ tagRouter.use(authMiddleware as any);
 tagRouter.get(
   "/",
   // @ts-ignore
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const tags = await tagQueries.getAllTags();
       res.json(tags);
@@ -86,23 +60,11 @@ tagRouter.get(
  *             properties:
  *               name:
  *                 type: string
- *     responses:
- *       201:
- *         description: Tag created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Tag'
- *       400:
- *         description: Tag name already exists
- *       403:
- *         description: Not authorized (teacher role required)
- *       500:
- *         description: Server error
  */
 tagRouter.post(
   "/",
   // @ts-ignore
+  authMiddleware,
   teacherOnly,
   async (req: AuthRequest, res: Response) => {
     try {
@@ -112,7 +74,6 @@ tagRouter.post(
         return res.status(400).json({message: "Tag name is required"});
       }
 
-      // Check if tag already exists
       const existingTag = await tagQueries.getTagByName(name);
       if (existingTag.length > 0) {
         return res.status(400).json({message: "Tag name already exists"});

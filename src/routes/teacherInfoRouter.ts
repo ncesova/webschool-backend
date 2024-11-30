@@ -266,7 +266,7 @@ teacherMetaRouter.delete(
  * @swagger
  * /teacher-info/search:
  *   get:
- *     summary: Search for teachers by tag names
+ *     summary: Search for teachers by tag names (public)
  *     tags: [TeacherInfo]
  *     parameters:
  *       - in: query
@@ -275,49 +275,20 @@ teacherMetaRouter.delete(
  *         schema:
  *           type: string
  *         description: Comma-separated list of tag names
- *     responses:
- *       200:
- *         description: List of teachers matching the tags
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   teacherId:
- *                     type: string
- *                   teacherName:
- *                     type: string
- *                   teacherSurname:
- *                     type: string
- *                   aboutTeacher:
- *                     type: string
- *                   canHelpWith:
- *                     type: string
- *                   tagsId:
- *                     type: array
- *                     items:
- *                       type: string
- *       400:
- *         description: No tags provided
- *       500:
- *         description: Server error
  */
-
+// @ts-ignore
 teacherMetaRouter.get(
   "/search",
   // @ts-ignore
   async (req: Request<any, any, any, {tags?: string}>, res: Response) => {
     try {
-      const tagsParam = req.query.tags;
+      const tagsParam = req.query.tags as string;
 
       if (!tagsParam) {
         return res.status(400).json({message: "No tags provided"});
       }
 
-      // Split the comma-separated tags and trim whitespace
-      const tagNames = tagsParam.split(",").map((tag: string) => tag.trim());
+      const tagNames = tagsParam.split(",").map((tag) => tag.trim());
 
       if (!tagNames.length) {
         return res.status(400).json({message: "No valid tags provided"});
