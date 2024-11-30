@@ -100,6 +100,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
     res.status(201).json({
       token,
       userId: newUser[0].id,
+      roleId: newUser[0].roleId,
     });
   } catch (error) {
     console.error("Signup error:", error);
@@ -268,6 +269,7 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     res.json({
       token,
       userId: user.id,
+      roleId: user.roleId,
     });
   } catch (error) {
     console.error("Login error:", error);
