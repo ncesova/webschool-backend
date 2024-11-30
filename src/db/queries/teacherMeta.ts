@@ -1,6 +1,6 @@
 import {db} from "../index";
-import {teacherMetaTable} from "../schema";
-import {eq} from "drizzle-orm";
+import {teacherMetaTable, usersTable, tagsTable} from "../schema";
+import {eq, inArray, sql} from "drizzle-orm";
 
 export async function getTeacherMetaByUserId(userId: string) {
   return db
@@ -52,4 +52,34 @@ export async function deleteTeacherMeta(userId: string) {
     .delete(teacherMetaTable)
     .where(eq(teacherMetaTable.userId, userId))
     .returning();
+}
+
+export async function findTeachersByTags(tagIds: string[]) {
+  return db
+    .select({
+      teacherId: teacherMetaTable.userId,
+      teacherName: usersTable.name,
+      teacherSurname: usersTable.surname,
+      aboutTeacher: teacherMetaTable.aboutTeacher,
+      canHelpWith: teacherMetaTable.canHelpWith,
+      tagsId: teacherMetaTable.tagsId,
+    })
+    .from(teacherMetaTable)
+    .innerJoin(usersTable, eq(usersTable.id, teacherMetaTable.userId))
+    .where(
+      sql`${teacherMetaTable.tagsId}::jsonb ?| array[${sql.join(tagIds)}]`
+    );
+}
+
+export async function searchTeachersByTagNames(tagNames: string[]) {
+  // First, get tag IDs from names
+  const tags = await db
+    .select()
+    .from(tagsTable)
+    .where(inArray(tagsTable.name, tagNames));
+
+  if (!tags.length) return [];
+
+  const tagIds = tags.map((tag) => tag.id);
+  return findTeachersByTags(tagIds);
 }

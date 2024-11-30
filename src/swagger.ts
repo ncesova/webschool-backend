@@ -195,6 +195,38 @@ const options = {
             },
           },
         },
+        TeacherSearchResult: {
+          type: "object",
+          properties: {
+            teacherId: {
+              type: "string",
+              description: "Teacher's user ID",
+            },
+            teacherName: {
+              type: "string",
+              description: "Teacher's first name",
+            },
+            teacherSurname: {
+              type: "string",
+              description: "Teacher's last name",
+            },
+            aboutTeacher: {
+              type: "string",
+              description: "About the teacher",
+            },
+            canHelpWith: {
+              type: "string",
+              description: "What the teacher can help with",
+            },
+            tagsId: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "Array of tag IDs associated with the teacher",
+            },
+          },
+        },
       },
     },
     security: [
