@@ -4,6 +4,7 @@ import {
   authMiddleware,
   teacherOnly,
 } from "../middleware/authMiddleware";
+import {canAccessChildData} from "../middleware/parentChildMiddleware";
 import {v4 as uuidv4} from "uuid";
 import * as classroomQueries from "../db/queries/classrooms";
 

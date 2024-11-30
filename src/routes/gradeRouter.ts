@@ -4,10 +4,10 @@ import {
   authMiddleware,
   teacherOnly,
 } from "../middleware/authMiddleware";
+import {canAccessChildData} from "../middleware/parentChildMiddleware";
 import {v4 as uuidv4} from "uuid";
 import * as gradeQueries from "../db/queries/grades";
 import * as lessonQueries from "../db/queries/lessons";
-import {canAccessChildData} from "../middleware/parentChildMiddleware";
 
 const gradeRouter = Router();
 gradeRouter.use(authMiddleware as any);
