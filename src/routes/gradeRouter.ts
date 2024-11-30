@@ -4,13 +4,15 @@ import {
   authMiddleware,
   teacherOnly,
 } from "../middleware/authMiddleware";
-import {canAccessChildData} from "../middleware/parentChildMiddleware";
 import {v4 as uuidv4} from "uuid";
 import * as gradeQueries from "../db/queries/grades";
 import * as lessonQueries from "../db/queries/lessons";
+import {ROLES} from "../db/seed";
+import * as parentChildQueries from "../db/queries/parentChild";
 
 const gradeRouter = Router();
-gradeRouter.use(authMiddleware as any);
+// @ts-ignore
+gradeRouter.use(authMiddleware);
 
 /**
  * @swagger
@@ -203,10 +205,34 @@ gradeRouter.get(
 gradeRouter.get(
   "/student/:studentId",
   // @ts-ignore
-  canAccessChildData,
   async (req: AuthRequest, res: Response) => {
     try {
       const {studentId} = req.params;
+      const userId = req.user!.userId;
+
+      // Allow access if:
+      // 1. User is requesting their own data
+      // 2. User is a teacher
+      // 3. User is a parent of the student
+      if (userId !== studentId && req.user!.roleId !== ROLES.TEACHER) {
+        // If user is a parent, check if they have access to this student
+        if (req.user!.roleId === ROLES.PARENT) {
+          const isParent = await parentChildQueries.isParentOfChild(
+            userId,
+            studentId
+          );
+          if (!isParent) {
+            return res.status(403).json({
+              message: "Not authorized to access this student's data",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Not authorized to access this student's data",
+          });
+        }
+      }
+
       const grades = await gradeQueries.getStudentGradesSimple(studentId);
       res.json(grades);
     } catch (error) {
