@@ -7,6 +7,13 @@ import {
 import {canAccessChildData} from "../middleware/parentChildMiddleware";
 import {v4 as uuidv4} from "uuid";
 import * as classroomQueries from "../db/queries/classrooms";
+import * as parentChildQueries from "../db/queries/parentChild";
+
+const ROLES = {
+  STUDENT: 1,
+  PARENT: 2,
+  TEACHER: 3,
+} as const;
 
 const classroomRouter = Router();
 
@@ -398,11 +405,35 @@ classroomRouter.get("/:id/details", async (req: AuthRequest, res: Response) => {
 classroomRouter.get(
   "/student/:studentId",
   // @ts-ignore
-  canAccessChildData,
-  // @ts-ignore
+  authMiddleware,
   async (req: AuthRequest, res: Response) => {
     try {
       const {studentId} = req.params;
+      const userId = req.user!.userId;
+
+      // Allow access if:
+      // 1. User is requesting their own data
+      // 2. User is a teacher
+      // 3. User is a parent of the student
+      if (userId !== studentId && req.user!.roleId !== ROLES.TEACHER) {
+        // If user is a parent, check if they have access to this student
+        if (req.user!.roleId === ROLES.PARENT) {
+          const isParent = await parentChildQueries.isParentOfChild(
+            userId,
+            studentId
+          );
+          if (!isParent) {
+            return res.status(403).json({
+              message: "Not authorized to access this student's data",
+            });
+          }
+        } else {
+          return res.status(403).json({
+            message: "Not authorized to access this student's data",
+          });
+        }
+      }
+
       const classrooms = await classroomQueries.getStudentClassroomsWithLessons(
         studentId
       );
