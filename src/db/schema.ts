@@ -116,3 +116,27 @@ export const lessonSummariesTable = pgTable("lesson_summaries_table", {
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const gradesTable = pgTable(
+  "grades_table",
+  {
+    id: text("id").primaryKey(),
+    lessonId: text("lesson_id")
+      .references(() => lessonsTable.id)
+      .notNull(),
+    studentId: text("student_id")
+      .references(() => usersTable.id)
+      .notNull(),
+    grade: integer("grade").notNull(),
+    comment: text("comment"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    // Ensure one grade per student per lesson
+    uniqueGrade: uniqueIndex("unique_grade_idx").on(
+      table.lessonId,
+      table.studentId
+    ),
+  })
+);

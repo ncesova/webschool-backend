@@ -57,7 +57,6 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         .json({message: "Username, password, and role are required"});
     }
 
-    // Students can only be registered by parents
     if (roleId === ROLES.STUDENT) {
       return res.status(400).json({
         message:
@@ -171,7 +170,7 @@ authRouter.post(
         name,
         surname,
         roleId: ROLES.STUDENT,
-        parentId: req.user.userId, // Pass parent's ID to create relationship
+        parentId: req.user.userId,
       });
 
       res.status(201).json({
