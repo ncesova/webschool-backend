@@ -34,7 +34,6 @@ const classroomRouter = Router();
  *           description: JSON string array of admin user IDs
  *         studentsId:
  *           type: string
- *           description: JSON string array of student user IDs
  */
 
 classroomRouter.use(authMiddleware as any);
@@ -151,7 +150,7 @@ classroomRouter.delete(
  * @swagger
  * /classroom/{id}/users:
  *   post:
- *     summary: Add a user to classroom (teachers only)
+ *     summary: Add users to classroom (teachers only)
  *     tags: [Classrooms]
  *     security:
  *       - bearerAuth: []
@@ -169,23 +168,13 @@ classroomRouter.delete(
  *           schema:
  *             type: object
  *             required:
- *               - userId
- *               - role
+ *               - userIds
  *             properties:
- *               userId:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: [admin, student]
- *     responses:
- *       200:
- *         description: User added to classroom
- *       403:
- *         description: Not authorized or not classroom admin
- *       404:
- *         description: Classroom not found
- *       500:
- *         description: Server error
+ *               userIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of user IDs to add (teachers will be added as admins, students as students)
  */
 classroomRouter.post(
   "/:id/users",
@@ -194,8 +183,12 @@ classroomRouter.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const {id} = req.params;
-      const {userId, role} = req.body;
+      const {userIds} = req.body;
       const teacherId = req.user!.userId;
+
+      if (!Array.isArray(userIds)) {
+        return res.status(400).json({message: "UserIds must be an array"});
+      }
 
       const classroom = await classroomQueries.getClassroomById(id);
       if (!classroom.length) {
@@ -209,23 +202,20 @@ classroomRouter.post(
           .json({message: "Only classroom admins can add users"});
       }
 
-      await classroomQueries.addUserToClassroom(
-        id,
-        userId,
-        role as "admin" | "student"
-      );
-      res.status(200).json({message: "User added to classroom"});
+      await classroomQueries.addUsersToClassroom(id, userIds);
+      res.status(200).json({message: "Users added to classroom"});
     } catch (error) {
-      res.status(500).json({message: "Failed to add user to classroom"});
+      console.error("Add users to classroom error:", error);
+      res.status(500).json({message: "Failed to add users to classroom"});
     }
   }
 );
 
 /**
  * @swagger
- * /classroom/{id}/users/{userId}:
+ * /classroom/{id}/users:
  *   delete:
- *     summary: Remove a user from classroom
+ *     summary: Remove multiple users from classroom
  *     tags: [Classrooms]
  *     security:
  *       - bearerAuth: []
@@ -236,35 +226,44 @@ classroomRouter.post(
  *         schema:
  *           type: string
  *         description: Classroom ID
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID to remove
- *     responses:
- *       200:
- *         description: User removed from classroom
- *       404:
- *         description: Classroom not found
- *       500:
- *         description: Server error
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userIds
+ *             properties:
+ *               userIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  */
 classroomRouter.delete(
-  "/:id/users/:userId",
+  "/:id/users",
   // @ts-ignore
   async (req: AuthRequest, res: Response) => {
     try {
-      const {id, userId} = req.params;
+      const {id} = req.params;
+      const {userIds} = req.body;
 
-      const result = await classroomQueries.removeUserFromClassroom(id, userId);
+      if (!Array.isArray(userIds)) {
+        return res.status(400).json({message: "UserIds must be an array"});
+      }
+
+      const result = await classroomQueries.removeUsersFromClassroom(
+        id,
+        userIds
+      );
       if (!result) {
         return res.status(404).json({message: "Classroom not found"});
       }
 
-      res.status(200).json({message: "User removed from classroom"});
+      res.status(200).json({message: "Users removed from classroom"});
     } catch (error) {
-      res.status(500).json({message: "Failed to remove user from classroom"});
+      console.error("Remove users from classroom error:", error);
+      res.status(500).json({message: "Failed to remove users from classroom"});
     }
   }
 );

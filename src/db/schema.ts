@@ -47,6 +47,22 @@ export const leaderboardTable = pgTable("leaderboard_table", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const tagsTable = pgTable("tags_table", {
+  id: text("id").primaryKey(),
+  name: text("name").unique(),
+});
+
+export const teacherMetaTable = pgTable("teacher_meta_table", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => usersTable.id)
+    .notNull(),
+  tagsId: text("tags_id").references(() => tagsTable.id),
+  aboutTeacher: text("about_teacher"),
+  canHelpWith: text("can_help_with"),
+  resume: text("resume"),
+});
+
 export const __drizzleMigrationsInDrizzle = drizzle.table(
   "__drizzle_migrations",
   {
@@ -54,4 +70,23 @@ export const __drizzleMigrationsInDrizzle = drizzle.table(
     hash: text("hash"),
     createdAt: bigint("created_at", {mode: "number"}),
   }
+);
+
+export const parentChildTable = pgTable(
+  "parent_child_table",
+  {
+    id: text("id").primaryKey(),
+    parentId: text("parent_id")
+      .references(() => usersTable.id)
+      .notNull(),
+    childId: text("child_id")
+      .references(() => usersTable.id)
+      .notNull(),
+  },
+  (table) => ({
+    parentChildUnique: uniqueIndex("parent_child_unique_idx").on(
+      table.parentId,
+      table.childId
+    ),
+  })
 );

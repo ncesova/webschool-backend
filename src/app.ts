@@ -7,8 +7,11 @@ import classroomRouter from "./routes/classroomRouter";
 import leaderboardRouter from "./routes/leaderboardRouter";
 import gameRouter from "./routes/gameRouter";
 import userRouter from "./routes/userRouter";
+import tagRouter from "./routes/tagRouter";
 import swaggerUi from "swagger-ui-express";
 import {specs} from "./swagger";
+import teacherInfoRouter from "./routes/teacherInfoRouter";
+import parentRouter from "./routes/parentRouter";
 
 const app = express();
 app.use(
@@ -26,6 +29,9 @@ app.use("/classroom", classroomRouter);
 app.use("/leaderboard", leaderboardRouter);
 app.use("/games", gameRouter);
 app.use("/users", userRouter);
+app.use("/tags", tagRouter);
+app.use("/teacher-info", teacherInfoRouter);
+app.use("/parent", parentRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 const port = process.env.PORT || 3000;

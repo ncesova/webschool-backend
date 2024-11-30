@@ -17,6 +17,35 @@ const options = {
         },
       },
       schemas: {
+        User: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "User's unique ID",
+            },
+            username: {
+              type: "string",
+              description: "User's username",
+            },
+            name: {
+              type: "string",
+              description: "User's first name",
+            },
+            surname: {
+              type: "string",
+              description: "User's last name",
+            },
+            roleId: {
+              type: "integer",
+              description: "User's role (1 = student, 2 = parent, 3 = teacher)",
+            },
+            classroomId: {
+              type: "string",
+              description: "ID of user's classroom (if any)",
+            },
+          },
+        },
         Game: {
           type: "object",
           required: ["id", "name"],
@@ -31,7 +60,51 @@ const options = {
             },
           },
         },
-        // ... other existing schemas
+        TeacherInfo: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "Info's unique ID",
+            },
+            userId: {
+              type: "string",
+              description: "Teacher's user ID",
+            },
+            tagsId: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "Array of tag IDs",
+            },
+            aboutTeacher: {
+              type: "string",
+              description: "About the teacher",
+            },
+            canHelpWith: {
+              type: "string",
+              description: "What the teacher can help with",
+            },
+            resume: {
+              type: "string",
+              description: "Teacher's resume",
+            },
+          },
+        },
+        Tag: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "Tag's unique ID",
+            },
+            name: {
+              type: "string",
+              description: "Tag name",
+            },
+          },
+        },
       },
     },
     security: [
@@ -59,6 +132,18 @@ const options = {
       {
         name: "Leaderboard",
         description: "Leaderboard management endpoints",
+      },
+      {
+        name: "Tags",
+        description: "Tag management endpoints",
+      },
+      {
+        name: "TeacherInfo",
+        description: "Teacher information management endpoints",
+      },
+      {
+        name: "Parent",
+        description: "Parent-child relationship management endpoints",
       },
     ],
   },

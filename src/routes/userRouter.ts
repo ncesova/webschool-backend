@@ -5,6 +5,7 @@ import {
   teacherOnly,
 } from "../middleware/authMiddleware";
 import * as userQueries from "../db/queries/users";
+import {canAccessChildData} from "../middleware/parentChildMiddleware";
 
 const userRouter = Router();
 
@@ -109,22 +110,27 @@ userRouter.get(
  *         description: Server error
  */
 // @ts-ignore
-userRouter.get("/:id", async (req: AuthRequest, res: Response) => {
-  try {
-    const {id} = req.params;
-    const user = await userQueries.getUserById(id);
+userRouter.get(
+  "/:id",
+  // @ts-ignore
+  canAccessChildData,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const {id} = req.params;
+      const user = await userQueries.getUserById(id);
 
-    if (!user.length) {
-      return res.status(404).json({message: "User not found"});
+      if (!user.length) {
+        return res.status(404).json({message: "User not found"});
+      }
+
+      const {password, ...userWithoutPassword} = user[0];
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Get user error:", error);
+      res.status(500).json({message: "Failed to get user"});
     }
-
-    const {password, ...userWithoutPassword} = user[0];
-    res.json(userWithoutPassword);
-  } catch (error) {
-    console.error("Get user error:", error);
-    res.status(500).json({message: "Failed to get user"});
   }
-});
+);
 
 /**
  * @swagger
