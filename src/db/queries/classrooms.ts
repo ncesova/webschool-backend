@@ -2,6 +2,7 @@ import {db} from "../index";
 import {classroomsTable, usersTable} from "../schema";
 import {eq, inArray, and} from "drizzle-orm";
 import {ROLES} from "../seed";
+import {sql} from "drizzle-orm";
 
 export async function createClassroom(data: {
   id: string;
@@ -116,4 +117,60 @@ export async function addUsersToClassroom(
     .where(inArray(usersTable.id, userIds));
 
   return {adminsArray, studentsArray};
+}
+
+export async function getTeacherClassrooms(teacherId: string) {
+  return db
+    .select({
+      id: classroomsTable.id,
+      name: classroomsTable.name,
+      adminsId: classroomsTable.adminsId,
+      studentsId: classroomsTable.studentsId,
+    })
+    .from(classroomsTable)
+    .where(
+      sql`${classroomsTable.adminsId}::jsonb @> ${JSON.stringify([
+        teacherId,
+      ])}::jsonb`
+    );
+}
+
+export async function getClassroomWithDetails(id: string) {
+  const classroom = await db
+    .select()
+    .from(classroomsTable)
+    .where(eq(classroomsTable.id, id));
+
+  if (!classroom.length) return null;
+
+  const admins = JSON.parse(classroom[0].adminsId || "[]");
+  const students = JSON.parse(classroom[0].studentsId || "[]");
+
+  // Get admin details
+  const adminDetails = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      name: usersTable.name,
+      surname: usersTable.surname,
+    })
+    .from(usersTable)
+    .where(inArray(usersTable.id, admins));
+
+  // Get student details
+  const studentDetails = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      name: usersTable.name,
+      surname: usersTable.surname,
+    })
+    .from(usersTable)
+    .where(inArray(usersTable.id, students));
+
+  return {
+    ...classroom[0],
+    admins: adminDetails,
+    students: studentDetails,
+  };
 }

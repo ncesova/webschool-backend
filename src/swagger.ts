@@ -105,6 +105,96 @@ const options = {
             },
           },
         },
+        ClassroomBasic: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "Classroom's unique ID",
+            },
+            name: {
+              type: "string",
+              description: "Classroom name",
+            },
+            adminsId: {
+              type: "string",
+              description: "JSON string array of admin user IDs",
+            },
+            studentsId: {
+              type: "string",
+              description: "JSON string array of student user IDs",
+            },
+          },
+        },
+        ClassroomDetails: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "Classroom's unique ID",
+            },
+            name: {
+              type: "string",
+              description: "Classroom name",
+            },
+            adminsId: {
+              type: "string",
+              description: "JSON string array of admin user IDs",
+            },
+            studentsId: {
+              type: "string",
+              description: "JSON string array of student user IDs",
+            },
+            admins: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Admin's user ID",
+                  },
+                  username: {
+                    type: "string",
+                    description: "Admin's username",
+                  },
+                  name: {
+                    type: "string",
+                    description: "Admin's first name",
+                  },
+                  surname: {
+                    type: "string",
+                    description: "Admin's last name",
+                  },
+                },
+              },
+            },
+            students: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Student's user ID",
+                  },
+                  username: {
+                    type: "string",
+                    description: "Student's username",
+                  },
+                  name: {
+                    type: "string",
+                    description: "Student's first name",
+                  },
+                  surname: {
+                    type: "string",
+                    description: "Student's last name",
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     security: [

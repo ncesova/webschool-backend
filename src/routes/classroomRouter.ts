@@ -268,4 +268,89 @@ classroomRouter.delete(
   }
 );
 
+/**
+ * @swagger
+ * /classroom/teacher:
+ *   get:
+ *     summary: Get all classrooms where the teacher is an admin
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of classrooms
+ *       403:
+ *         description: Not authorized (teacher role required)
+ *       500:
+ *         description: Server error
+ */
+classroomRouter.get(
+  "/teacher",
+  // @ts-ignore
+  teacherOnly,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const teacherId = req.user!.userId;
+      const classrooms = await classroomQueries.getTeacherClassrooms(teacherId);
+      res.json(classrooms);
+    } catch (error) {
+      console.error("Get teacher classrooms error:", error);
+      res.status(500).json({message: "Failed to get classrooms"});
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /classroom/{id}/details:
+ *   get:
+ *     summary: Get detailed classroom information
+ *     tags: [Classrooms]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Classroom ID
+ *     responses:
+ *       200:
+ *         description: Classroom details including admin and student information
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: Classroom not found
+ *       500:
+ *         description: Server error
+ */
+// @ts-ignore
+classroomRouter.get("/:id/details", async (req: AuthRequest, res: Response) => {
+  try {
+    const {id} = req.params;
+    const userId = req.user!.userId;
+
+    const classroom = await classroomQueries.getClassroomWithDetails(id);
+    if (!classroom) {
+      return res.status(404).json({message: "Classroom not found"});
+    }
+
+    // Check if user has access to this classroom
+    const admins = classroom.admins.map((admin) => admin.id);
+    const students = classroom.students.map((student) => student.id);
+
+    if (!admins.includes(userId) && !students.includes(userId)) {
+      return res.status(403).json({
+        message: "You don't have access to this classroom",
+      });
+    }
+
+    res.json(classroom);
+  } catch (error) {
+    console.error("Get classroom details error:", error);
+    res.status(500).json({message: "Failed to get classroom details"});
+  }
+});
+
 export default classroomRouter;
